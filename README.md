@@ -1,10 +1,10 @@
 # Letter Game API
 
 To run:
-0. Clone this directory
-1. `npm install`
-2. `npm start`
-3. Access API @ localhost:3000
+1. Clone this directory
+2. `npm install`
+3. `npm start`
+4. Access API @ localhost:3000
 
 ---
 
