@@ -30,6 +30,8 @@ const isValidRequest = (body: object)=>{
   // simple function here but allows for expandability
   if (!body.hasOwnProperty('selected'))
     return false;
+  if (!body.hasOwnProperty('playerId'))
+    return false;
   return true;
 };
 const response = (statusCode: number, resObj: any, err: string = null, msg: string = null, extendedData: object = {})=>{
@@ -53,6 +55,10 @@ app.get("/", (req, res) => {
 
 app.get("/words", (req, res) => {
   return res.json(game.words);
+});
+// PART2B : api endpoint for scores
+app.get("/scoreboard", (req, res) => {
+  return res.json(game.displayScores());
 });
 
 app.post("/move", (req, res) => {

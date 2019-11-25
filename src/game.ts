@@ -8,7 +8,8 @@ import dictionary from "./data/dictionary.json";
 
 /* interface */
 interface GameState {
-  selected: number[]
+  selected: number[],
+  playerId: string
 };
 
 /**
@@ -17,13 +18,15 @@ interface GameState {
  */
 class Game {
   public words: string[];
-  public board : string[];
+  public board: string[];
+  public scores: { [key: string] : { [key: string] : number } };
   public boardMap: { [key: string] : number };
   public dictionary: any;
   constructor(){
     this.words = dictionary.words;
+    this.scores = {}; // temporal -- can reload via cache if required
     this.dictionary = new Trie(dictionary.words);
-    // PART2: Check if at least one dictionary word is in shuffled board
+    // PART2B: Check if at least one dictionary word is in shuffled board
     this.shuffleAndVerify();
     console.log(this.boardMap);
   }
@@ -67,13 +70,16 @@ class Game {
    * @description : validate user's move
    */
   validate(meta: GameState){
-    // PART2: first validate if moves are legal (neighbors only)
+    // PART2A: first validate if moves are legal (neighbors only)
     const word = this.areNeighbors(meta.selected);
-    console.log('Word is : '+word);
     // PART1: validate if word is in dictionary
-    if (!word)
+    if (!word){
+      this.recordScore(meta.playerId);
       return { found: false, legal: false };
+    }
     const wordFind = this.dictionary.has(word);
+    // PART2B: record player scores
+    this.recordScore(meta.playerId, (wordFind.found && wordFind.completeWord) ? 1 : 0);
     return { ...wordFind, legal: true };
   }
   /**
@@ -140,6 +146,30 @@ class Game {
     }
     word += this.board[wordLocations[wordLocations.length-1]];
     return (buildWord) ? word : true;
+  }
+  /**
+   * @param string
+   * @param number
+   * @returns boolean
+   * @description : increment the score for a specific player id
+   */
+  recordScore(playerID : string, incrementor : number = 0){
+    if (!this.scores.hasOwnProperty(playerID))
+      this.scores[playerID] = { score: incrementor, attempts: 1 }
+    else {
+      this.scores[playerID].score += incrementor;
+      this.scores[playerID].attempts++;
+    }
+    return true;
+  }
+  /**
+   * @returns object
+   * @description : returns the real time scores
+   *  function not really necessary but incase we need to transform the score display in the future
+   */
+  displayScores(){
+    // can add other mutations here
+    return this.scores;
   }
 }
 export default Game;
