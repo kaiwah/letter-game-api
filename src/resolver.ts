@@ -26,12 +26,10 @@ const game = new LetterGame();
  * Route Helpers
  * @description: functions to help with route handling
  */
-const isValidRequest = (urlParams: { [key: string]: string }, body: object)=>{
-  if (!urlParams['0'].length)
-    return false;
+const isValidRequest = (body: object)=>{
+  // simple function here but allows for expandability
   if (!body.hasOwnProperty('selected'))
     return false;
-  console.log(body);
   return true;
 };
 const response = (statusCode: number, resObj: any, err: string = null, msg: string = null, extendedData: object = {})=>{
@@ -57,11 +55,13 @@ app.get("/words", (req, res) => {
   return res.json(game.words);
 });
 
-app.post("/move/*", (req, res) => {
-  if (isValidRequest(req.params, req.body)){
-    const isValidMove = game.validate(req.params['0'], req.body.selected);
+app.post("/move", (req, res) => {
+  if (isValidRequest(req.body)){
+    const isValidMove = game.validate(req.body);
     let message;
-    if (!isValidMove.found)
+    if (!isValidMove.legal)
+      message = 'This move is illegal. Please select neighbors only.';
+    else if (!isValidMove.found)
       message = 'This move is invalid.';
     else {
       if (isValidMove.completeWord)
